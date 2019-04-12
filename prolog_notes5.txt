@@ -1,0 +1,174 @@
+% nthElement(X, Index, List)
+nthElement(X, 0, [X|_]).
+nthElement(X, N, [_|T]) :-
+	nthElement(X, M, T),
+	N is M + 1.
+
+inUnion(X, A, B) :-
+	member(X, A);
+	member(X, B).
+
+inIntersection(X, A, B) :-
+	member(X, A),
+	member(X, B).
+
+inDifference(X, A, B) :-
+	member(X, A),
+	not(member(X, B)).
+
+isSubset(A, B) :-
+	not((
+	member(X, A),
+	not(member(X, B))
+	)).
+
+areEqual(A, B) :-
+	subset(A, B),
+	subset(B, A).
+
+removeDuplicates([], []).
+removeDuplicates([H|T], [H|R]) :-
+	not(member(H, R)),
+	removeDuplicates(T, R).
+removeDuplicates([H|T], R) :-
+	member(H, R),
+	removeDuplicates(T, R).
+
+1) p(L), по даден списък от различни списъци L проверява дали
+всеки два различни елемента на L имат общ елемент, който не
+принадлежи на някой елемент на L.
+
+Ev. X of L, Ev. Y of L 
+( 
+	X \= Y => 
+	Ex. Z of X 
+		(
+		Z of Y and Ex. T of L 
+			(
+			Z not of T
+			)
+		 )
+)
+
+not (Ex. X of L)(Ex. Y of L)
+(
+	X \= Y and
+	not 
+	(
+		Ex. Z of X
+		(
+			Z of Y and Ex. T of L
+			(
+				Z not of T
+			)
+		)
+	)
+)
+
+p(L) :- 
+	not
+	((
+	member(X, L), 
+	member(Y, L), 
+	X \= Y,
+		not
+		((
+		inIntersection(Z, X, Y),
+		member(T, L),
+			not
+			(
+			member(Z, T)
+			)
+		))
+	)).
+
+2) q(L) : Дали съществуват два различни елемента от L,
+които имат общ елемент, който не принадлежи на никой друг елемент
+на L.
+
+(Ex. X of L)(Ex. Y of L)
+(
+	X \= Y and 
+	(Ex. T of X)
+	(
+		T of Y and 
+		not
+		(Ex. Z of L)
+		(
+			T of Z and
+			Z \= X and
+			Z \= Y
+		)
+	)
+)
+
+q(L) :- 
+	member(X, L), member(Y, L), 
+	X \= Y,
+	inIntersection(T, X, Y),
+	not
+	((
+		member(Z, L),
+			member(T, Z),
+			Z \= X,
+			Z \= Y
+	)).
+
+3) p(X, Y): По даден списък Х генерира в Y всички списъци,
+чийто елементи са елементи на Х и броят на срещанията
+на най-честосрещания елемент в Y е число, което не е елемент
+на X.
+
+Нужно: member, subset, permutation, count, countMax.
+
+subsequence([], []).
+subsequence([H|T], [H|R]) :-
+	subsequence(T, R).
+subsequence([_|T], R) :-
+	subsequence(T, R).
+
+subset(S, L) :-
+	subsequence(Sub, L),
+	permutation(Sub, S).
+
+%count(X, N, L)
+count(_, 0, []).
+count(X, N, [X|T]) :- 
+	count(X, M, T),
+	N is M + 1.
+count(X, N, [H|T]) :-
+	X \= H,
+	count(X, N, T).
+
+countMax(X, N, L) :-
+	member(X, L),
+	count(X, N, L),
+	not
+	((
+		member(Y, L),
+		count(Y, M, L),
+		M > N
+	)).
+
+p(X, Y) :-
+	subset(Y, X),
+	countMax(_, N, Y),
+	not
+	(
+		member(N, X)
+	).
+
+isPalindrome([]).
+isPalindrome([_]).
+isPalindrome(L) :-
+	append(A, B, L),
+	len(A, N),
+	len(B, N),
+	reverse(A, B).
+isPalindrome(L) :-
+	append(A, [_|B], L),
+	len(A, N),
+	len(B, M),
+	M =:= N + 1,
+	reverse(B, RB),
+	prefix(A, RB).

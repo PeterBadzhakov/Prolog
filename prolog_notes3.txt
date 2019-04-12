@@ -1,0 +1,12 @@
+% Quicksort
+%% partition(Pivot, List, LL, RL).
+% partition(_, [], [], []).
+% partition(Pivot, [H|T], [H|LL], RL) :- H < Pivot, partition(Pivot, T, LL, RL).
+% partition(Pivot, [H|T], LL, [H|RL]) :- H >= Pivot, partition(Pivot, T, LL, RL).
+% quicksort([], []).
+% quicksort(L, R) :- L = [H|T], partition(H, T, LL, RL), quicksort(LL, SLL), quicksort(RL, SRL), append(SLL, [H|SRL], R).
+
+% bogosort(L, SL) :- permutation(L, SL), is_sorted(SL).
+% subset([], []).
+% subset([_|T], R) :- subset(T, R).
+% subset([H|T], [H|R]) :- subset(T, R).

@@ -1,0 +1,105 @@
+% Генератор, филтър
+
+% Permutation sort
+perm_sort(S, L) :- perm(S, L), sorted(S).
+
+
+% Selection sort
+sel_sort([], []).
+sel_sort(L, [M|S]) :- min(M, L), remove(M, L, N), sel_sort(S, N).
+
+% Quick sort
+% Вземаме първият елемент за пивот, за О(1) вземане.
+% [...] < X <= [...]
+%   ^~~A         ^~~B
+%partition(L, X, A, B).
+partition([], X, [], []).
+partition([H|T], X, [H|A], B) :- 
+	less(H, X),
+	partition(T, X, A, B).
+partition([H|T], X, A, [H|B]) :-
+	not(less(H, T)),
+	partition(T, X, A, B).
+quick_sort([], []).
+quick_sort(S, [X|T]) :-
+	partition(T, X, A, B),
+	quick_sort(A, SA),
+	quick_sort(B, SB),
+	append(SA, [X|SB], S).
+
+% Binary search tree.
+% tree(T, L, R)
+% empty - constant
+% add(X, T, N).
+% makeTree(L, T).
+% ltr(T, S). left tree right, put into list
+% tree_sort(T, S). make tree from T, make tree into sorted list
+
+ltr(empty, []).
+ltr(tree(T, L, R), S) :-
+	ltr(L, SL),
+	ltr(R, SR),
+	append(SL, [T|SR], S).
+
+add(X, empty, tree(X, empty, empty)).
+add(X, tree(T, L, R), tree(T, NL, R)) :-
+	less(X, T),
+	add(X, L, NL).
+add(X, tree(T, L, R), tree(T, L, NR)) :-
+	not(less(X, T)),
+	add(X, R, NR).
+
+makeTree([], empty).
+makeTree([H|L], T) :-
+	makeTree(L, T1),
+	add(H, T1, T).
+
+tree_sort(S, L) :- 
+	makeTree(L, T),
+	ltr(T, S).
+
+% Reverse list.
+reverse([], []).
+reverse([H|T], R) :- 
+	reverse(T, RT), 
+	append(RT, [H], R).
+% Bad, O(n^2).
+
+% r(L, S, R). - list, stack, result
+r([], S, S).
+r([H|T], S, R) :-
+	r(L, [H|S], R).
+reverse(L, R) :-
+	r(L, [], R).
+
+% Good, O(n).
+% Всеки итеративен алгоритъм може да се напише като рекурсивен,
+% използвайки аргументите като помнещи променливи.
+% Пр. 7 аргумента -> 7 променливи.
+
+
+% Да се напише Декартово произведение на два списъка.
+% d(D, L). L - списък от списъци, по един елемент от всеки списък образува D
+% H [...]
+% L [...], [...], [...], ...
+
+d([], []).
+d([X|D], [H|L]) :-
+	member(X, H),
+	d(D, L).
+
+% Всеки трети елемент от списък.
+thirds([], []).
+thirds([H|T], [X|L]) :-
+	H = [_, _, X | _], 
+	thirds(T, L).
+
+% Subset
+subset([], []).
+subset([H|S], [H|L]) :-
+	subset(S, L).
+subset(S, [H|L]) :-
+	subset(S, L).
+
+% Списъкът M, чийто елементи са елементи на L.
+m(M, L).

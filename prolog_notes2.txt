@@ -1,0 +1,61 @@
+% perm(P, L). % В P слагаме всички пермутации на списъка L.
+% [ ........ H ... ] L
+%      ^~~~ M ~~^    от L махаме H и получаваме M.
+
+% [ H | ..... P .... ] % H е първият елемент на L, а P е пермутацията на всички останали елементи.
+
+% perm([ ] | [ ]).
+% perm([ H | P ], L) :- remove(H, L, M), perm(P, M).
+
+% [1, 2, 3]
+% Искаме да получим [ H | P ]. 
+% 1) H = 1, P = пермутация на [2, 3]
+% => P = [2, 3], P = [3, 2]
+% => [1, 2 ,3], [1, 3, 2]
+% 2) H = 2, P = пермутация на [1, 3]
+% .....
+
+% add(X, L, N) :- remove(X, N, L).
+% OR
+% add(X, L, [ X | L ]).
+% add(X, [ H | T ], [ H | L ]) :- add(X, T, L).
+
+
+% prefix(P, L) :- append(P, _, L).
+%  [ ... | ... ] L
+%     l>P   l>S
+
+% suffix(S, L) :- append(_, S, L).
+% infix(C, L) :- append(P, _, L), append(_, C, P).
+
+% less(A, B).
+% sorted(L).
+
+% sorted([ ]).
+% sorted([_]).
+% sorted([ A, B | T ]) :- less(A, B), sorted([ B | T]).
+
+% sorted(L) :- not(( infix([A, B], L), not(less(A, B)) )). 
+
+% X е списък от числа, Y е списък от списъци от числа.
+% p1(X, Y) <> Има елемент на Х, който е елемент на У.
+% p3(X, Y) <> Има елемент на Х, който е във всеки елемент на У.
+% p3(X, Y) <> Всеки елемент на Х е в елемент на У.
+% p4(X, Y) <> Всеки елемент на Х е във всеки елемент на У.
+
+% Същ a Същ b Ф
+% p1(X, Y) :- member(A, X), member(B, Y), member(A, B).
+
+% Същ a За всяко b <> Същ a Не Същ b Не Ф
+% p2(H, Y) :- member(A, X), not(( member(B, Y), not(( member(A, B) )) )).
+
+% За всяко а Същ b Ф <> Не Същ а Не Същ b Ф
+% p3(X, Y) :- not(( member(A, X), not(( member(B, Y), member(A, B) )) )).
+
+% p4(X, Y) :- not(( member(A, X), member(B, Y), not(( member(A, B) )) )).
+
+% min element
+% min(M, [M]).
+% min(M, [H | T]) :- min(N, T), min2(M, H, N).
+% min2(H, H, N) :- less(H, N).
+% min2(N, H, N) :- not(( less(H, N) )).
