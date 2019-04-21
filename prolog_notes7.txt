@@ -1,0 +1,134 @@
+% Graphs: G = <V, E>
+% V = [a, b, c, ..., j]
+% E = [[a, b], [c, j], ..., [b, j]]
+% G = [V, E]
+
+% Дадени ребра, да намерим върховете.
+% extractVertices(E, V).
+extractVertices([], []).
+extractVertices([[x, y]|T], V) :- 
+	extractVertices(T, TV),
+	addVertex(X, TV, XV),
+	addVertex(Y, XV, V).
+
+addVertex(X, V, [X|V]) :- not(member(X, V)).
+addVertex(X, V, V) :- member(X, V).
+
+% or
+
+megaConcat([], []).
+megaConcat([H|T], R) :-
+	megaConcat(T, RT),
+	append(RT, H, R).
+
+removeDuplicates([], []).
+removeDuplicates([H|T], [H|R]) :-
+	removeDuplicates(T, R),
+	not(member(H, R)).
+removeDuplicates([H|T], R) :-
+	removeDuplicates(T, R),
+	member(H, R).
+
+extractVertices2(E, V) :-
+	megaConcat(E, L),
+	removeDuplicates(L, V).
+
+% Simple path finder.
+% Edges, From, To, Path.
+% X <- W <- Z <- Y    <=> [X, W, Z, Y]
+simplePath([V, E], X, Y, P) :- sP(E, X, [Y], P).
+
+sP(_, X, [X|Rest], [X|Rest]).
+sP(E, X, [Z|Rest], P) :- 
+	X \= Z,
+	member([W, Z], E),
+	not(member(W, [Z|Rest])),
+	sP(E, X, [W, Z|Rest], P).
+
+% Ea. X Ea. Y (path(X, Y))
+% not Ex. X Ex Y (not path(X, Y))
+isConnected([]).
+isConnected([V, E]) :-
+	not((
+		member(X, V),
+		member(Y, V),
+		not(simplePath([V, E], X, Y, _))
+	)).
+
+isFull([V, E]) :-
+	not((
+		member(X, V),
+		member(Y, V),
+		not(member([X, Y], E))
+	)).
+
+% Ea. X Ea. Y 
+% (
+%	[X, Y] of E => [Y, X] of E
+% )
+% not Ex. X Ex. Y 
+% (
+%	[X, Y] of E and [Y, X] not of E
+% )
+isUndirected([V, E]) :-
+	not((
+		member([X, Y], E),
+		not(member([Y, X], E))
+	)).
+
+% Graph, MST, aux. result
+dfs([V, E], Root, R) :- dfs1(E, [Root], [], R).
+
+dfs1(_, [], _, []).
+dfs1(E, [StackH|StackT], Visited, [[StackH, Next]|R]) :-
+	genNext(E, StackH, [StackH|StackT], Visited, Next),
+	dfs1(E, [Next, StackH|StackT], Visited, R).
+dfs1(E, [StackH|StackT], Visited, R) :-
+	not(genNext(E, StackH, [StackH|StackT], Visited, _)),
+	dfs1(E, StackT, [StackH|Visited], R).
+
+genNext(E, X, Stack, Visited, Next) :-
+	member([X, Next], E),
+	not(member(Next, Stack)),
+	not(member(Next, Visited)).
+
+% Homework: BFS
+
+hamiltonianPath([V, E], P) :-
+	permutation(V, P),
+	not((
+		append(_, [X, Y|_], P),
+		not(member([X, Y], E))
+	)).
+
+clique([V, E], C) :-
+	subset(C, V),
+	isFull([C, E]).
+
+isProperSubset(S, L) :-
+	subset(S, L),
+	member(X, L),
+	not(member(X, S)).
+
+maximalClique([V, E], C) :-
+	clique([V, E], C),
+	not((
+		clique([V, E], C1),
+		C \= C1,
+		not(isProperSubset(C1, C))
+	)).
+
+critical([V, E], X) :-
+	remove(X, V, NewV),
+	not(isConnected([NewV, E]).
+
+crit([V, E], X) :-
+	crity([V, E], V, X).
+
+crity(_, [], []).
+crity([V, E], [H|T], [H|R]) :-
+	critical([V, E], H),
+	crity([V, E], T, R).
+crity([V, E], [H|T], R) :-
+	not(critical([V, E], H])),
+	crity([V, E], T, R).
