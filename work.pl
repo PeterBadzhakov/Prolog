@@ -1,3 +1,4 @@
+% TODO: prolog_notes4.txt -> tree.
 % For declarative arithmetic.
 :- use_module(library(clpfd)).
 
@@ -85,3 +86,23 @@ is_sorted([H1, H2|T]) :-
 bogo_sort(L, SL) :-
 		permute(L, SL),
 		is_sorted(SL).
+
+% partition(Pivot, List, LL, RL).
+quick_sort([], []).
+quick_sort(L, SL) :- 
+		L = [H|T],
+		qs_partition(H, T, LL, RL),
+		quick_sort(LL, SLL), 
+		quick_sort(RL, SRL), 
+		append(SLL, [H|SRL], SL).
+qs_partition(_, [], [], []).
+qs_partition(Pivot, [H|T], [H|LL], RL) :- 
+		H #< Pivot, 
+		qs_partition(Pivot, T, LL, RL).
+qs_partition(Pivot, [H|T], LL, [H|RL]) :- 
+		H #>= Pivot,
+		qs_partition(Pivot, T, LL, RL).
+
+% Selection sort omitted - no random access to list elements.
+% See: prolog_notes4.txt
+
