@@ -1,4 +1,5 @@
-% TODO: prolog_notes5.txt
+% TODO:: prolog_notes5.txt
+
 % Miscellaneous code while learning Prolog at university.
 % Coding style: predicate(input1, ..., inputN, optional_output).
 
