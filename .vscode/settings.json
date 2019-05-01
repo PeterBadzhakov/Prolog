@@ -1,0 +1,5 @@
+{
+    "editor.formatOnSaveTimeout": 50,
+    "editor.cursorStyle": "line-thin",
+    "powermode.enabled": true
+}

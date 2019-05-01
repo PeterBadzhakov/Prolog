@@ -6,7 +6,7 @@
         {
             "label": "Swi-prolog",
             "type": "shell",
-            "command": "kill -9 $(pgrep -i swi); swipl work.pl",
+            "command": "swipl work.pl",
             "group": {
                 "kind": "build",
                 "isDefault": true
