@@ -164,3 +164,19 @@ cartesian_product([List1|Remainder], [H|T]) :-
 subset([], []).
 subset([H|T], [H|S]) :- subset(T, S).
 subset([_|T], S) :- subset(T, S).
+
+inUnion(L1, L2, E) :-
+		member(L1, E);
+		member(L2, E).
+
+inIntersection(L1, L2, E) :-
+		member(L1, E),
+		member(L2, E).
+
+inDifference(L1, L2, E) :-
+		member(L1, E),
+		not(member(L2, E)).
+
+areEqual(L1, L2) :-
+	subset(L1, L2),
+	subset(L2, L1).
