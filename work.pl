@@ -178,5 +178,15 @@ inDifference(L1, L2, E) :-
 		not(member(L2, E)).
 
 areEqual(L1, L2) :-
-	subset(L1, L2),
-	subset(L2, L1).
+		subset(L1, L2),
+		subset(L2, L1).
+
+remove_duplicates([], []).
+remove_duplicates([H|T], [H|RD]) :-
+		remove_duplicates(T, RD),
+		not(member(H, RD)).
+remove_duplicates([H|T], RD) :-
+		remove_duplicates(T, RD),
+		member(H, RD).
+
+%TODO: palindrome
