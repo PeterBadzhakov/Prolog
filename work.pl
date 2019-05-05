@@ -23,6 +23,11 @@ len([_|T], N) :-
 		N #= M + 1, 
 		len(T, M).
 
+sum([], 0).
+sum([H|T], Sum) :-
+		sum(T, Res),
+		Sum #= Res + H.
+
 min([H], H).
 min([H|T], E) :-
 		min(T, E),
@@ -190,3 +195,16 @@ remove_duplicates([H|T], RD) :-
 		member(H, RD).
 
 %TODO: palindrome
+
+naturals(0).
+naturals(X) :-
+		X #= Y + 1,
+		naturals(Y).
+
+% between(L, R, X)
+% All numbers X between L and R.
+between(L, R, L) :- L #=< R.
+between(L, R, X) :-
+		L #< R,
+		L1 #= L + 1,
+		between(L1, R, X).
