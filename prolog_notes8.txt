@@ -1,0 +1,74 @@
+% Graphs
+
+% Assume graph not oriented G := [V, E].
+
+% path(G, X, Y, P) - P is path in G from X to Y.
+% connected(G).
+% stree(G, T). - spanning tree
+
+Prolog has a built-in method for depth-first search.
+
+% Idea:
+% dfs(X) :- OK(X). % when done
+% dfs(X) :- edge(X, Y), dfs(Y).
+% Doesn't account for loops.
+
+edge(G, X, Y) :- 
+    G = [_, E],
+    (
+    mem(E, [X, Y]);
+    mem(E, [Y, X])
+    ).
+
+% Must not repeat paths or enter loops, 
+% so memoise them in a table.
+% Meaning it doesn't re-calculate a loop and hang.
+:-table path(+, +, +, -).
+path(G, X, X, []).
+path(G, X, Y, [X|P]) :-
+        edge(G, X, Z),
+        path(G, Z, Y, P).
+
+OR
+
+% path(Graph, Origin, Target, Visited, Path).
+path(G, X, Y, P) :-
+       path_rec(G, X, Y, [], Q),
+       reverse(Q, P).
+path_rec(_, X, X, V, V).
+path_rec(G, X, Y, V, P) :-
+        edge(G, X, Z),
+        not(mem(V, Z)),
+        path_rec(G, Z, Y, [X|V], P).
+
+between(A, B, X) :-
+        X in A..B,
+        label([X]).
+
+% All permutations of [0, 1, 2].
+length(L, 3), L ins 0..2, all_different(L).
+
+perm(P, L) :-
+        length(L, N),
+        length(I, N),
+        I ins 1..N,
+        all_different(I),
+        maplist(mem(L), I, P).
+
+% maplist is a way to pipeline arguments into the first functor.
+% maplist(mem(L), I, P) => mem(L, I, P)
+% Idea:
+[A, B, C, ...]   [C, B, A, ...]
+ 1, 2, 3, ...  => 3, 2, 1, ...
+
+% st(Graph, Visited, Not-visited, Edges-of-tree).
+stree([V, E], [V, T]) :-
+        V = [H|V1],
+        st([V, E], [H], V1, T).
+
+st(G, V, [], []).
+st(G, V, N, [[X, Y]|T]) :-
+        mem(V, X),
+        remove(N, Y, N1),
+        edge(G, [X, Y]),
+        st(G, [Y|V], N1, T).

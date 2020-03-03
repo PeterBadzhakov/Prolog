@@ -1,0 +1,70 @@
+% Генератори: Крайни, Безкрайни.
+% Крайни, Безкрайни: Генериране
+% Крайни: Разпознаватели.
+
+naturals(0).
+naturals(N) :-
+        naturals(M),
+        N is M + 1.
+
+len([], 0).
+len([_|T], N) :-
+        len(T, M),
+        N is M + 1.
+
+%natural(X).
+%->natural(0). -> X = 0.
+%->natural(M), X is M + 1.
+%    ->M = 0. -> X = 1.
+%    ->natural(M1), X1 is M1 + 1, X1 = M. -> X = 2.
+         %...
+
+% Idea: integers
+integers(N) :-
+        naturals(M),
+        (N #= M; N #= -M).
+
+% Flatten: [[a], [[b]], 1, [[[]]]] -> [a, b, 1]
+is_list([]).
+is_list([_|_]).
+
+flatten([], []).
+flatten(A, [A]) :- not(is_list(A)).
+flatten([H|T], R) :- 
+        flatten(H, FH),
+        flatten(T, FT),
+        append(FH, FT, R).
+
+% Split: [a, b, 1]: [[a], [b], [1]], [[a,b], [1]], [[[a]], [b, 1]] ...
+split([], []).
+split([H|T], [A|R]) :-
+        append(A, B, [H|T]),
+        A \= [],
+        split(B, R).
+
+% Редица на Фарей Fn са редици от двойки естествени числа,
+% като се дефинират рекурсивно за n >= 1 по следния начин:
+F1 = [<0, 1>, <1, 1>]
+Fn+1 се получава от Fn като между всеки два последователни
+члена <a, b> и <c, d> в Fn, за които b + d = n + 1
+се добавя двойката <a + c, b + d>.
+
+% Чрез преудовлетворяване, генерирайте всички редици Fn.
+
+farey(F) :- farey(F, _).
+farey([[0, 1], [1,1]]).
+farey(F, N) :-
+        farey(F1, N1),
+        N is N1 + 1,
+        add_pairs_farey(F1, N1, F).
+add_pairs_farey([], _, []).
+add_pairs_farey([X], _, [X]).
+add_pairs_farey([[A, B], [C, D]|T], N, [[A, B], [E, F]|R]) :- % F = B + D
+        add_pairs_farey([[C, D]|T], N, R),
+        B + D =:= N + 1,
+        E is A + C,
+        F is B + D.
+add_pairs_farey([[A, B], [C, D]|T], N, [[A, B]|R]) :-
+        add_pairs_farey([[C, D]|T], N, R),
+        B + D =\= N + 1.
+        

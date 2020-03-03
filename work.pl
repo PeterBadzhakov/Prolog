@@ -5,6 +5,7 @@
 
 % For declarative arithmetic.
 :- use_module(library(clpfd)).
+:- use_module(library(clpr)).
 
 and(A, B) :- A, B.
 or(A, B) :- A; B.
@@ -15,47 +16,49 @@ xor(A, B) :- or(A,B), nand(A,B).
 % push_front
 list_add(X, L, [X|L]).
 
-%member([E|_], E).
-%member([_|T], E) :- member(T, E).
+my_member([E|_], E).
+my_member([_|T], E) :- my_member(T, E).
 
-len([], N) :- N #= 0.
-len([_|T], N) :- 
+my_length([], N) :- N #= 0.
+my_length([_|T], N) :- 
+		N #> 0,
 		N #= M + 1, 
-		len(T, M).
+		my_length(T, M).
 
 sum([], 0).
 sum([H|T], Sum) :-
 		sum(T, Res),
 		Sum #= Res + H.
 
-min([H], H).
-min([H|T], E) :-
-		min(T, E),
+my_min([H], H).
+my_min([H|T], E) :-
+		my_min(T, E),
 		H #> E.
-min([H|T], H) :-
-		min(T, E),
+my_min([H|T], H) :-
+		my_min(T, E),
 		H #=< E.
 
-append([], B, B).
-append([H|T], B, [H|R]) :- append(T, B, R).
+my_append([], L2, L2).
+my_append([H|T], L2, [H|T1]) :-
+		my_append(T, L2, T1).
 
 % All L where X has been added somewhere.
 insert(X, L, NL) :- 
-		append(A, B, L), 
-		append(A, [X|B], NL).
+		my_append(A, B, L), 
+		my_append(A, [X|B], NL).
 % [.....][......]  A + B
 % [.....X.......]  NL = A + X + B
 
 % All L where X has been removed.
-remove(X, L, NL) :- 
-		append(A, [X|B], L), 
-		append(A, B, NL).
+remove(L, X, NL) :- 
+		my_append(A, [X|B], L), 
+		my_append(A, B, NL).
 
-prefix(L, P) :- append(P, _, L).
+prefix(L, P) :- my_append(P, _, L).
 % [....] + [.....] P + _
 % [..............] L
 
-suffix(L, S) :- append(_, S, L).
+suffix(L, S) :- my_append(_, S, L).
 % [....] + [.....] _ + S
 % [..............] L
 
@@ -108,7 +111,7 @@ quick_sort([H|T], SL) :-
 		qs_partition(H, T, LL, RL),
 		quick_sort(LL, SLL), 
 		quick_sort(RL, SRL), 
-		append(SLL, [H|SRL], SL).
+		my_append(SLL, [H|SRL], SL).
 qs_partition(_, [], [], []).
 qs_partition(Pivot, [H|T], [H|LL], RL) :- 
 		H #< Pivot, 
@@ -123,6 +126,16 @@ qs_partition(Pivot, [H|T], LL, [H|RL]) :-
 
 % [] is empty tree.
 % [Root, Left, Right]: Root, Left subtree, Right subtree.
+tree_generate(T) :- naturals(N), t(N, T).
+t(N, []) :- N #= 0.
+t(N, [A, B]) :-
+        N #> 0,
+        P #>= 0,
+        Q #>= 0,
+        P + Q + 1 #= N,
+        t(P, A),
+        t(Q, B).
+
 bst_insert(Element, [], [Element, [], []]).
 bst_insert(Element, [Root, Left, Right], [Root, Left_choice, Right]) :-
 		Element #=< Root,
@@ -159,11 +172,13 @@ bst_post_order([Root, Left, Right]) :-
 		bst_post_order(Right),
 		write(Root).
 
+% TODO: bst_count
+
 % cartesian_product([L1, L2, _], L).
 % L is every tuple of the cartesian product L1xL2x...xLn.
 cartesian_product([], []).
 cartesian_product([List1|Remainder], [H|T]) :-
-		member(List1, H),
+		my_member(List1, H),
 		cartesian_product(Remainder, T).
 
 subset([], []).
@@ -171,16 +186,16 @@ subset([H|T], [H|S]) :- subset(T, S).
 subset([_|T], S) :- subset(T, S).
 
 inUnion(L1, L2, E) :-
-		member(L1, E);
-		member(L2, E).
+		my_member(L1, E);
+		my_member(L2, E).
 
 inIntersection(L1, L2, E) :-
-		member(L1, E),
-		member(L2, E).
+		my_member(L1, E),
+		my_member(L2, E).
 
 inDifference(L1, L2, E) :-
-		member(L1, E),
-		not(member(L2, E)).
+		my_member(L1, E),
+		not(my_member(L2, E)).
 
 areEqual(L1, L2) :-
 		subset(L1, L2),
@@ -189,22 +204,91 @@ areEqual(L1, L2) :-
 remove_duplicates([], []).
 remove_duplicates([H|T], [H|RD]) :-
 		remove_duplicates(T, RD),
-		not(member(H, RD)).
+		not(my_member(H, RD)).
 remove_duplicates([H|T], RD) :-
 		remove_duplicates(T, RD),
-		member(H, RD).
-
-%TODO: palindrome
+		my_member(H, RD).
 
 naturals(0).
 naturals(X) :-
 		X #= Y + 1,
 		naturals(Y).
 
-% between(L, R, X)
-% All numbers X between L and R.
-between(L, R, L) :- L #=< R.
-between(L, R, X) :-
+integers(0).
+integers(N) :-
+	naturals(M),
+	M #> 0,
+	(N #= M; N #= -M).
+
+% my_between(L, R, X)
+% All numbers X my_between L and R.
+my_between(L, R, L) :- L #=< R.
+my_between(L, R, X) :-
 		L #< R,
 		L1 #= L + 1,
-		between(L1, R, X).
+		my_between(L1, R, X).
+
+% Works both ways. Works with arithmetic statements.
+factorial(X, Y) :- 
+		X #= 0,
+		Y #= 1.
+factorial(X, Y) :-
+		X #> 0,
+		Y #= X * PrevY,
+		PrevX #= X - 1, factorial(PrevX, PrevY).
+
+even(X) :-
+		X #= 2*X1,
+		naturals(X1).
+	
+natural_pairs(X, Y) :-
+		X #>= 0,
+		Y #>= 0,
+		X + Y #= N,
+		naturals(N),
+		label([X, Y]).
+
+% Fibonacci: a3 = a2 + a1; 1 = 1 + 0
+% fib(A1, A2, A3, A1 + A2).
+fib(0, 1, N) :- N #= 1.
+fib(A, B, N) :- N #= A + B, fib(_, A, B).
+
+all_sums(N,[]) :- N #= 0.
+all_sums(N, [H|T]) :- 
+		N #> 0,
+		my_between(1, N, H),
+		M is N - H,
+		all_sums(M, T).
+
+% [A, B], A, B in Z, A #=< B
+special_pair(A, B) :-
+		naturals(B),
+		my_between(0, B, A).
+
+%new_is_sorted([]).
+new_is_sorted(L) :-
+		not((infix(L, [A, B]), A #> B)).
+
+gen_ks(K, S, []) :-
+		K #= 0,
+		S #= 0.
+gen_ks(K, S, [H|T]) :-
+		K #> 0,
+		S #> 0,
+		my_between(1, S, H),
+		gen_ks(K - 1, S - H, T).
+
+flatten(X, [X]) :- not(is_list(X)).
+flatten([], []).
+flatten([H|T], R):- 
+		flatten(H, FH), 
+		flatten(T, FT), 
+		append(FH, FT, R).
+
+squash([], []).
+squash(L, [H|T]) :-
+		append(H, H1, L),
+		H \= [],
+		squash(H1, T).
+
+

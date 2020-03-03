@@ -1,0 +1,53 @@
+% [a, a, b, b, c, c, c, a]
+% [[a, a], [b, b], [c, c, c], [a]]
+
+% group(L, GL)
+group([], []).
+group([X], [[X]]).
+group([X, X|T], [[X|C]|G]) :- group([X|T], [C|G]).
+group([X, Y|T], [[X]|G]) :-
+        X \= Y,
+        g([Y|T], G).
+
+% Generate all binary trees.
+% t(T) :- n(N), t(N, T).
+t(N, []) :- N #= 0.
+t(N, [A, B]) :-
+        N #> 0,
+        P #>= 0,
+        Q #>= 0,
+        P + Q + 1 #= N,
+        t(P, A),
+        t(Q, B).
+
+% Generate all points with natural coordinates [X, Y],
+% inside a circle ([A, B], R).
+%circle(X, Y, A, B, R).
+
+% Idea: Generate square with centre [A, B] and edge 2*R,
+% then filter points.
+% Square is such that:
+% X1 to X2, Y1 to Y2 - intervals = 2*R
+p(X, Y, A, B, R) :-
+        X1 is A - R,
+        X2 is A + R,
+        Y1 is B - R,
+        Y2 is B + R,
+        between(X1, X2, X),
+        between(Y1, Y2, Y),
+        in(X, Y, A, B, R).
+in(X, Y, A, B, R) :- (X - A) * (X - A) + (Y - B) * (Y - B) #=< R * R.
+
+% p(N) - N in 0..1000, N е сумата на квадратите на четири естествени числа.
+p(N) :-
+        between(X1, 0, 32), % 32*32 = 1024 > 1000
+        %...
+        between(X4, 0, 32),
+        N is X1*X1 + X2*X2 + X3*X3 + X4*X4,
+        N < 1000.
+
+% unique(L, RL) - remove all consecutive duplicate elements.
+unique([], []).
+unique([X], [X]).
+unique([X, X|T], R) :- unique([X|T], R).
+unique([X, Y|T], [X|R]) :- X \= Y, unique([Y|T], R).

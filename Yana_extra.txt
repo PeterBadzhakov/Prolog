@@ -1,0 +1,106 @@
+% Problem 1 - on phone
+
+
+% Problem 2 - Фенски списък
+Фенски списък е краен списък, всеки елемент, на който, е някоя от буквите 1, 2,
+или фенски списък, като броя елементи, които са буквата 1 е равен наброя елементи,
+които са буквата 2.
+Да се дефинира предикат, който чрез преудовлетворяване генерира всички фенски списъци.
+
+[1, [2,1], 2, [], [[1, 2], [1, 2], 2, 1], 2, 1]   OK
+[1, [2, 1], 2, 1, [], [[1, 2], [1, 2], 2, 1, 2], 1, 2] 
+
+Idea:
+use split and recursion!
+
+% gen(N, List)
+gen(0, []).
+gen(N, [X|R]) :-
+        N > 0,
+        N1 is N - 1,
+        member(X, [1, 2, []]),
+        gen(R).
+
+split([], []).
+split([H|T], [A|R]) :-
+        append(A, B, [H|T]),
+        A \= [],
+        split(B, R).
+% Single-pass split:
+% [1, 2, 5] -> [[1], [2], [5]], [[1, 2], [5]] -> ...
+
+% splitGeneral(List, K, Result)
+splitGeneral(L, 0, L).
+splitGeneral(L, K, R) :-
+        K > 0,
+        K1 is K - 1,
+        split(L, SL),
+        splitGeneral(SL, K1, R).
+% 1s and 0s match?
+condition([]).
+condition(A) :-
+        not(isList(A)).
+condition(L) :-
+        count(1, N1, L),
+        count(2, N1, L),
+        not((
+            member(N, L), 
+            not(condition(X)
+        ))).
+fenGen([]).
+fenGen(L) :-
+        pairs(A, B), % not(N), between(0, N, A), B is N - A
+        A > 0,
+        gen(A, L1),
+        splitGeneral(L1, B, L),
+        condition(L).
+
+% Problem 3
+Баланс на списък от списъци от числа, L, ще наричаме разликата м/у
+НМЕ сред всичките най-големи елементи на L и НГЕ сред всички най-малки
+елементи на L.
+Да се деф. p(L) - разпознаващ дали баланса на  се съдржа във всичките му елементи.
+
+max(L, X) :-
+        member(L, X),
+        not
+        ((
+            member(L, Y),
+            Y > X
+        )).
+max(X, L) :-
+        member(L, X),
+        not
+        ((
+            member(L, Y),
+            X > Y
+        )).
+getMaxElements([], []).
+getMaxElements([H|T], [MaxH|R]) :-
+        max(H, MaxH),
+        getMaxElements(T, R).
+getMinElements([], []).
+getMinElements([H|T], [MinH|R]) :-
+        min(H, MinH),
+        getMinElements(T, R).
+balance(L, B) :-
+        getMaxElements(L, MaxL),
+        getMinElements(L, MinL),
+        min(MaxL, MinMax),
+        max(MinL, MaxMin),
+        B is MinMax - Max Min.
+p(L) :- 
+        balance(L, B),
+        not
+        ((
+                member(L, X),
+                not
+                ((
+                        member(X, B)
+                ))
+        )).
+
+% Problem 4
+Да се дефинира предикат p(L), който при преудовлетворяване генерира в L всички
+списъци от вида [X1, ..., Xn], където Xi са списъци с елементи естествени числа
+между 0..99 и за всяко i е в сила, че Xi е префикс на Xi+1.

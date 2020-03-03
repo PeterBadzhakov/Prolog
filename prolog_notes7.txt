@@ -6,7 +6,7 @@
 % Дадени ребра, да намерим върховете.
 % extractVertices(E, V).
 extractVertices([], []).
-extractVertices([[x, y]|T], V) :- 
+extractVertices([[X, Y]|T], V) :- 
 	extractVertices(T, TV),
 	addVertex(X, TV, XV),
 	addVertex(Y, XV, V).

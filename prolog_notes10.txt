@@ -1,0 +1,69 @@
+% Constraint logic programming
+
+:- use_module(library(clpfd))
+% fd = finite domains
+% clpq -> Q
+% clpr -> R
+% R subset Q
+
+Хорнови дизюнкции - м-во от литерали, където има макс
+1 положителен литерал.
+
+- фактите - {p}
+- правилата - {p, q1, q1, ..., qn}, n > 0
+- целите - {q1, ..., qn}, n > 0
+
+Програма на Prolog = съвкупност от факти и правила
+
+?- 1 + 2 = 3.
+false % = -> unification
+?- 1 + 2 #= 3
+%    ^~~Z   ^~~Z
+?- X #= 1 + 2
+X = 3.
+
+head :- <CLP constr.>, body % CLP causes tree cut early!
+      ^~~neck
+
+% partial correctness: if program halts, returns correct result
+% full correctness: program halts for a finite number of steps.
+
+#\ p <-> not(p)
+p #/\ q <-> p, q
+p #\/ q <-> p; q
+p #\ q <-> xor(p, q)
+p #==> q <-> p -> q
+p #<== q <-> q -> p
+p #<==> q <-> iff(p, q)
+
+Var in 5
+Var in A..B
+Var in Dom1 \/ Dom2
+ListOfVars in S
+indomain(Var)
+label(ListOfVars)
+all_distinct(ListOfVars)
+
+% Linear optimisation:
+q(X, Y, W) :- 
+	    {
+		Y =< 5,
+		X =< 5,
+    	W = X + Y,
+    	X >= 0,
+		Y >= 0
+		},
+    	maximize(W).
+
+% Graphs:
+G = [V, E]
+V = [a, b, ...]
+E = [[a, b], [c, d], ...]
+
+node(g1, a).
+node(g1, b).
+edge(g1, a, b).
+edge(g1, b, d).
+% g1 - const
+
+% see last notes.
